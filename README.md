@@ -4,5 +4,22 @@
   
   [![forthebadge](https://forthebadge.com/images/badges/check-it-out.svg)](https://forthebadge.com)
 
-making a fast exif remover for golang.
+removes exif in 20ms
 </div>
+
+# install
+```bash
+go get github.com/xis/go-dexif
+```
+
+# using
+```go
+import "github.com/xis/go-dexif"
+
+func main() {
+	err := dexif.Dexif("./test.jpeg", "dest.jpg")
+	if err != nil {
+	    panic(err)
+	}
+}
+```
