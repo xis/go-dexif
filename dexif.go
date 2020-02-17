@@ -1,7 +1,6 @@
 package dexif
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"os"
@@ -14,24 +13,28 @@ func Dexif(filepath string, destpath string) error {
 	if err != nil {
 		return err
 	}
-	b := make([]byte, 2)
-	f.Seek(2, 0)
-	f.Read(b)
-	res := bytes.Compare(b, []byte{0xFF, 0xE1})
-	if res == 0 {
-		for i := 0; i < 32768; i++ {
-			f.Read(b)
-			res := bytes.Compare(b, []byte{0xFF, 0xD9})
-			if res == 0 {
-				break
+	buffer := make([]byte, 64000)
+	_, err = f.ReadAt(buffer, 0)
+	if err != nil {
+		return err
+	}
+	if buffer[2] == 0xFF && buffer[3] == 0xE1 {
+		for x := 1; x < 64000; x++ {
+			if buffer[x-1] == 0xFF && buffer[x] == 0xD9 {
+				fout, err := os.Create(destpath)
+				if err != nil {
+					return err
+				}
+				fout.Write([]byte{0xFF, 0xD8})
+				f.Seek(int64(x), 0)
+				_, err = io.Copy(fout, f)
+				if err != nil {
+					return err
+				}
+				defer fout.Close()
+				return nil
 			}
 		}
-	} else {
-		return errors.New("no exif data found")
 	}
-	fout, _ := os.Create(destpath)
-	fout.Write([]byte{0xFF, 0xD8})
-	io.Copy(fout, f)
-	defer fout.Close()
-	return nil
+	return errors.New("no exif data found")
 }
