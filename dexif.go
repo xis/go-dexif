@@ -9,8 +9,8 @@ import (
 
 // Dexif @ removes exif data in image
 func Dexif(filepath string, destpath string) error {
-
 	f, err := os.Open(filepath)
+	defer f.Close()
 	if err != nil {
 		return err
 	}
@@ -24,6 +24,7 @@ func Dexif(filepath string, destpath string) error {
 		exifSize := binary.BigEndian.Uint16(buffer[2:4])
 		exifSize += 4
 		fout, err := os.Create(destpath)
+		defer fout.Close()
 		if err != nil {
 			return err
 		}
