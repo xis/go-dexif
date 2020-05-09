@@ -12,7 +12,7 @@ removes exif fast
 go get github.com/xis/go-dexif
 ```
 
-# using
+# usage
 ```go
 import "github.com/xis/go-dexif"
 
